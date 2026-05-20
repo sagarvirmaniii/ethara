@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const Modal = ({ title, onClose, children, size = 'md' }) => {
+const Modal = ({ title, onClose, children, footer, size = 'md' }) => {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
@@ -18,7 +18,6 @@ const Modal = ({ title, onClose, children, size = 'md' }) => {
       className="modal-backdrop fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* py-8 gives top/bottom breathing room; pointer-events-none on wrapper so clicks on padding hit the backdrop */}
       <div className="w-full flex items-center justify-center min-h-full py-8 px-4 pointer-events-none">
         <div
           className={`modal-enter bg-white rounded-xl shadow-2xl w-full ${widths[size]} flex flex-col pointer-events-auto`}
@@ -35,8 +34,14 @@ const Modal = ({ title, onClose, children, size = 'md' }) => {
               &times;
             </button>
           </div>
-          {/* Body — scrolls when content overflows */}
-          <div className="px-6 py-5">{children}</div>
+          {/* Body */}
+          <div className="px-6 py-5 flex flex-col gap-4">{children}</div>
+          {/* Footer — always visible, never scrolls */}
+          {footer && (
+            <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
+              {footer}
+            </div>
+          )}
         </div>
       </div>
     </div>

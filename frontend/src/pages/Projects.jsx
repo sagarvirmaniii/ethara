@@ -205,10 +205,23 @@ const Projects = () => {
       )}
 
       {showModal && (
-        <Modal title={editing ? 'Edit Project' : 'New Project'} onClose={() => setShowModal(false)}>
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <Modal
+          title={editing ? 'Edit Project' : 'New Project'}
+          onClose={() => setShowModal(false)}
+          footer={
+            <div className="flex gap-3">
+              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">
+                Cancel
+              </Btn>
+              <Btn type="submit" form="project-form" loading={saving} className="flex-1">
+                {saving ? 'Saving...' : editing ? 'Update Project' : 'Create Project'}
+              </Btn>
+            </div>
+          }
+        >
+          <form id="project-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             {formError && (
-              <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
             )}
 
             <div>
@@ -264,15 +277,6 @@ const Projects = () => {
                   ))
                 )}
               </div>
-            </div>
-
-            <div className="flex gap-3 pt-1">
-              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">
-                Cancel
-              </Btn>
-              <Btn type="submit" loading={saving} className="flex-1">
-                {saving ? 'Saving...' : editing ? 'Update Project' : 'Create Project'}
-              </Btn>
             </div>
           </form>
         </Modal>
