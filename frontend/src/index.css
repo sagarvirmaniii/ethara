@@ -8,10 +8,6 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  * {
-    @apply transition-colors duration-150;
-  }
-
   input, select, textarea {
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
@@ -33,14 +29,23 @@
     }
   }
 
+  .modal-backdrop {
+    animation: backdropEnter 0.15s ease-out both;
+  }
+
+  @keyframes backdropEnter {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   .modal-enter {
-    animation: modalEnter 0.18s ease-out both;
+    animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   @keyframes modalEnter {
     from {
       opacity: 0;
-      transform: scale(0.97) translateY(-4px);
+      transform: scale(0.95) translateY(8px);
     }
     to {
       opacity: 1;
@@ -64,10 +69,14 @@
   }
 
   .card-hover {
-    @apply transition-all duration-200;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
 
   .card-hover:hover {
     @apply shadow-md -translate-y-0.5;
+  }
+
+  .btn-transition {
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
   }
 }

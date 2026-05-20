@@ -238,20 +238,20 @@ const Projects = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Team Members</label>
-              <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-50">
+              <div className="max-h-44 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100 bg-white">
                 {members.length === 0 ? (
                   <p className="text-sm text-gray-400 px-4 py-3">No members available</p>
                 ) : (
                   members.map((m) => (
                     <label
                       key={m._id}
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={form.teamMembers.includes(m._id)}
                         onChange={() => toggleMember(m._id)}
-                        className="w-4 h-4 accent-indigo-600 rounded"
+                        className="w-4 h-4 accent-indigo-600 rounded flex-shrink-0"
                       />
                       <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {m.name[0].toUpperCase()}

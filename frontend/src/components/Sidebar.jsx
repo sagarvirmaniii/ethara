@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import UserMenu from './UserMenu';
 
 const icons = {
   dashboard: (
@@ -81,15 +82,17 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile top bar — hidden on lg since Layout header handles it */}
+      {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-between">
         <button
           onClick={() => setMobileOpen(true)}
           className="text-gray-500 hover:text-gray-700 p-1"
+          aria-label="Open menu"
         >
           {icons.menu}
         </button>
         <h1 className="text-base font-bold text-indigo-600 absolute left-1/2 -translate-x-1/2">TaskManager</h1>
+        <UserMenu />
       </div>
 
       {/* Mobile overlay */}
