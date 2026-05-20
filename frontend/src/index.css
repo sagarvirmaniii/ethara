@@ -4,79 +4,59 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-gray-900 antialiased;
+    @apply bg-gray-50 text-gray-900 antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  input, select, textarea {
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  input, select, textarea, button, a {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
   }
 }
 
 @layer utilities {
+  /* ── Page transition ── */
   .page-enter {
-    animation: pageEnter 0.2s ease-out both;
+    animation: pageEnter 0.18s ease-out both;
   }
-
   @keyframes pageEnter {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0);   }
   }
 
-  .modal-backdrop {
-    animation: backdropEnter 0.15s ease-out both;
+  /* ── Modal ── */
+  .modal-overlay-enter {
+    animation: overlayIn 0.15s ease both;
   }
-
-  @keyframes backdropEnter {
+  @keyframes overlayIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
 
-  .modal-enter {
-    animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  .modal-panel-enter {
+    animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);   }
   }
 
-  @keyframes modalEnter {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
+  /* ── Toast ── */
   .toast-enter {
-    animation: toastEnter 0.2s ease-out both;
+    animation: toastIn 0.2s ease-out both;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0);    }
   }
 
-  @keyframes toastEnter {
-    from {
-      opacity: 0;
-      transform: translateX(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
+  /* ── Card hover ── */
   .card-hover {
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
   }
-
   .card-hover:hover {
-    @apply shadow-md -translate-y-0.5;
-  }
-
-  .btn-transition {
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    @apply shadow-md;
+    transform: translateY(-1px);
   }
 }

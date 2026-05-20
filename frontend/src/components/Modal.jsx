@@ -1,55 +1,54 @@
 import { useEffect } from 'react';
 
+const WIDTHS = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
+
 const Modal = ({ title, onClose, children, footer, size = 'md' }) => {
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
-
-    return () => document.removeEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
   }, [onClose]);
 
-  const widths = {
-    sm: 'max-w-lg',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-  };
-
   return (
+    /* Overlay — covers viewport, dims background */
     <div
-      className="fixed inset-0 z-50 flex justify-center overflow-y-auto bg-black/50 p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="modal-overlay-enter fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto p-4 sm:p-6"
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
+      {/*
+        Panel wrapper: my-8 gives breathing room top+bottom.
+        On short viewports the overlay scrolls to reveal the full panel.
+        max-h-[calc(100vh-4rem)] + overflow-y-auto = internal scroll safety net.
+      */}
       <div
-        className={`relative my-8 flex w-full ${widths[size]} flex-col overflow-hidden rounded-2xl bg-white shadow-2xl`}
-        onClick={(e) => e.stopPropagation()}
+        className={`modal-panel-enter relative w-full ${WIDTHS[size]} my-8 bg-white rounded-2xl shadow-2xl flex flex-col max-h-[calc(100vh-4rem)] overflow-hidden`}
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {title}
-          </h2>
-
+        {/* ── Sticky header ── */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <h2 className="text-base font-semibold text-gray-900 tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-2xl text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-700"
+            aria-label="Close"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 text-xl leading-none"
           >
             &times;
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex flex-col gap-6 p-8">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4 min-h-0">
           {children}
         </div>
 
-        {/* Footer */}
+        {/* ── Sticky footer ── */}
         {footer && (
-          <div className="border-t border-gray-200 bg-white px-8 py-6">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 bg-white">
             {footer}
           </div>
         )}

@@ -2,16 +2,20 @@ import Sidebar from './Sidebar';
 import UserMenu from './UserMenu';
 
 const Layout = ({ children }) => (
-  <div className="flex min-h-screen bg-slate-50">
+  <div className="flex h-screen bg-gray-50 overflow-hidden">
     <Sidebar />
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Desktop header — hidden on mobile since Sidebar renders its own top bar */}
-      <header className="hidden lg:flex h-14 bg-white border-b border-gray-100 items-center justify-end px-6 flex-shrink-0 sticky top-0 z-30">
+
+    {/* Right column */}
+    <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      {/* Desktop topbar */}
+      <header className="hidden lg:flex h-14 flex-shrink-0 items-center justify-end gap-4 px-6 bg-white border-b border-gray-100 sticky top-0 z-30">
         <UserMenu />
       </header>
 
-      <main className="flex-1 overflow-auto pt-14 lg:pt-0">
-        <div className="page-enter max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Scrollable content area */}
+      <main className="flex-1 overflow-y-auto">
+        {/* pt-14 offsets the mobile fixed top bar */}
+        <div className="page-enter pt-14 lg:pt-0 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
           {children}
         </div>
       </main>
