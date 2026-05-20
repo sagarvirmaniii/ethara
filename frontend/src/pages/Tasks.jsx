@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import Popup from '../components/Modal';
 import { StatusBadge, PriorityBadge } from '../components/Badges';
 import { TableSkeleton } from '../components/Loaders';
 import { Btn, inputCls } from '../components/FormField';
@@ -15,19 +14,19 @@ const Tasks = () => {
   const toast = useToast();
   const isAdmin = user?.role === 'Admin';
 
-  const [tasks, setTasks]               = useState([]);
-  const [projects, setProjects]         = useState([]);
-  const [members, setMembers]           = useState([]);
+  const [tasks, setTasks]                     = useState([]);
+  const [projects, setProjects]               = useState([]);
+  const [members, setMembers]                 = useState([]);
   const [selectedProject, setSelectedProject] = useState('');
-  const [loading, setLoading]           = useState(false);
+  const [loading, setLoading]                 = useState(false);
   const [projectsLoading, setProjectsLoading] = useState(true);
-  const [showModal, setShowModal]       = useState(false);
-  const [editing, setEditing]           = useState(null);
-  const [form, setForm]                 = useState(DEFAULT);
-  const [formError, setFormError]       = useState('');
-  const [saving, setSaving]             = useState(false);
-  const [deletingId, setDeletingId]     = useState(null);
-  const [updatingId, setUpdatingId]     = useState(null);
+  const [showForm, setShowForm]               = useState(false);
+  const [editing, setEditing]                 = useState(null);
+  const [form, setForm]                       = useState(DEFAULT);
+  const [formError, setFormError]             = useState('');
+  const [saving, setSaving]                   = useState(false);
+  const [deletingId, setDeletingId]           = useState(null);
+  const [updatingId, setUpdatingId]           = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -51,13 +50,14 @@ const Tasks = () => {
       .finally(() => setLoading(false));
   }, [selectedProject]);
 
-  const openCreate = () => { setEditing(null); setForm({ ...DEFAULT, project: selectedProject }); setFormError(''); setShowModal(true); };
+  const openCreate = () => { setEditing(null); setForm({ ...DEFAULT, project: selectedProject }); setFormError(''); setShowForm(true); };
   const openEdit   = (t) => {
     setEditing(t);
     setForm({ title: t.title, description: t.description || '', assignedTo: t.assignedTo?._id || '', project: t.project, status: t.status, priority: t.priority, dueDate: t.dueDate ? t.dueDate.split('T')[0] : '' });
     setFormError('');
-    setShowModal(true);
+    setShowForm(true);
   };
+  const closeForm = () => { setShowForm(false); setEditing(null); setFormError(''); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,7 +75,7 @@ const Tasks = () => {
         setTasks(r.data);
         toast('Task created', 'success');
       }
-      setShowModal(false);
+      closeForm();
     } catch (err) { setFormError(err.response?.data?.message || 'Failed to save task'); }
     finally { setSaving(false); }
   };
@@ -100,9 +100,94 @@ const Tasks = () => {
 
   const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setFormError(''); };
 
+  /* ── Full-page form ── */
+  if (showForm) {
+    return (
+      <Layout>
+        <div className="max-w-xl mx-auto">
+          {/* Back link */}
+          <button onClick={closeForm} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Tasks
+          </button>
+
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="px-6 py-5 border-b border-gray-100">
+              <h1 className="text-base font-semibold text-gray-900">
+                {editing ? 'Edit Task' : 'New Task'}
+              </h1>
+            </div>
+
+            <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
+              )}
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700">Title <span className="text-red-500">*</span></label>
+                <input type="text" autoFocus value={form.title} onChange={set('title')} className={inputCls} placeholder="Task title" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700">Description</label>
+                <textarea rows={3} value={form.description} onChange={set('description')} className={`${inputCls} resize-none`} placeholder="Optional description" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700">Project <span className="text-red-500">*</span></label>
+                  <select value={form.project} onChange={set('project')} className={inputCls}>
+                    <option value="">Select project</option>
+                    {projects.map((p) => <option key={p._id} value={p._id}>{p.projectName}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700">Assign To</label>
+                  <select value={form.assignedTo} onChange={set('assignedTo')} className={inputCls}>
+                    <option value="">Unassigned</option>
+                    {members.map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <select value={form.status} onChange={set('status')} className={inputCls}>
+                    <option>Todo</option><option>In Progress</option><option>Completed</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700">Priority</label>
+                  <select value={form.priority} onChange={set('priority')} className={inputCls}>
+                    <option>Low</option><option>Medium</option><option>High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700">Due Date</label>
+                <input type="date" value={form.dueDate} onChange={set('dueDate')} className={inputCls} />
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <Btn type="button" variant="secondary" onClick={closeForm} className="flex-1">Cancel</Btn>
+                <Btn type="submit" loading={saving} className="flex-1">
+                  {saving ? 'Saving…' : editing ? 'Update Task' : 'Create Task'}
+                </Btn>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  /* ── Tasks list ── */
   return (
     <Layout>
-      {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Tasks</h1>
@@ -206,74 +291,6 @@ const Tasks = () => {
           </table>
         </div>
       </div>
-
-      {/* Popup */}
-      {showModal && (
-        <Popup
-          title={editing ? 'Edit Task' : 'New Task'}
-          onClose={() => setShowModal(false)}
-        >
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {formError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
-            )}
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Title <span className="text-red-500">*</span></label>
-              <input type="text" autoFocus value={form.title} onChange={set('title')} className={inputCls} placeholder="Task title" />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Description</label>
-              <textarea rows={2} value={form.description} onChange={set('description')} className={`${inputCls} resize-none`} placeholder="Optional description" />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Project <span className="text-red-500">*</span></label>
-                <select value={form.project} onChange={set('project')} className={inputCls}>
-                  <option value="">Select project</option>
-                  {projects.map((p) => <option key={p._id} value={p._id}>{p.projectName}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Assign To</label>
-                <select value={form.assignedTo} onChange={set('assignedTo')} className={inputCls}>
-                  <option value="">Unassigned</option>
-                  {members.map((m) => <option key={m._id} value={m._id}>{m.name}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Status</label>
-                <select value={form.status} onChange={set('status')} className={inputCls}>
-                  <option>Todo</option><option>In Progress</option><option>Completed</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Priority</label>
-                <select value={form.priority} onChange={set('priority')} className={inputCls}>
-                  <option>Low</option><option>Medium</option><option>High</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Due Date</label>
-              <input type="date" value={form.dueDate} onChange={set('dueDate')} className={inputCls} />
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">Cancel</Btn>
-              <Btn type="submit" loading={saving} className="flex-1">
-                {saving ? 'Saving…' : editing ? 'Update Task' : 'Create Task'}
-              </Btn>
-            </div>
-          </form>
-        </Popup>
-      )}
     </Layout>
   );
 };
