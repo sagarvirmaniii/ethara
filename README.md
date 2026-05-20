@@ -79,13 +79,13 @@ npm run dev
 | JWT_SECRET   | Secret key for JWT signing         | mysecretkey                      |
 | JWT_EXPIRE   | JWT expiry duration                | 7d                               |
 | NODE_ENV     | Environment                        | development                      |
-| CLIENT_URL   | Frontend URL for CORS (production) | https://your-app.vercel.app      |
+| CLIENT_URL   | Frontend URL for CORS (production) | https://ethara-alpha.vercel.app  |
 
 ### Frontend (`frontend/.env`)
 
-| Variable       | Description       | Example                      |
-|----------------|-------------------|------------------------------|
-| VITE_API_URL   | Backend API URL   | http://localhost:5000/api    |
+| Variable       | Description       | Example                                     |
+|----------------|-------------------|---------------------------------------------|
+| VITE_API_URL   | Backend API URL   | https://ethara-wtki.onrender.com/api/health |
 
 ---
 
