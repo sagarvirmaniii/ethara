@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import Modal from '../components/Modal';
+import Popup from '../components/Modal';
 import { StatusBadge, PriorityBadge } from '../components/Badges';
 import { TableSkeleton } from '../components/Loaders';
 import { Btn, inputCls } from '../components/FormField';
@@ -207,21 +207,13 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Popup */}
       {showModal && (
-        <Modal
+        <Popup
           title={editing ? 'Edit Task' : 'New Task'}
           onClose={() => setShowModal(false)}
-          footer={
-            <div className="flex gap-3">
-              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">Cancel</Btn>
-              <Btn type="submit" form="task-form" loading={saving} className="flex-1">
-                {saving ? 'Saving…' : editing ? 'Update Task' : 'Create Task'}
-              </Btn>
-            </div>
-          }
         >
-          <form id="task-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {formError && (
               <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
             )}
@@ -272,8 +264,15 @@ const Tasks = () => {
               <label className="text-sm font-medium text-gray-700">Due Date</label>
               <input type="date" value={form.dueDate} onChange={set('dueDate')} className={inputCls} />
             </div>
+
+            <div className="flex gap-3 pt-2">
+              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">Cancel</Btn>
+              <Btn type="submit" loading={saving} className="flex-1">
+                {saving ? 'Saving…' : editing ? 'Update Task' : 'Create Task'}
+              </Btn>
+            </div>
           </form>
-        </Modal>
+        </Popup>
       )}
     </Layout>
   );

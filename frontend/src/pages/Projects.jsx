@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import Modal from '../components/Modal';
+import Popup from '../components/Modal';
 import { CardSkeleton } from '../components/Loaders';
 import { Btn, inputCls } from '../components/FormField';
 import { useToast } from '../components/Toast';
@@ -151,21 +151,13 @@ const Projects = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Popup */}
       {showModal && (
-        <Modal
+        <Popup
           title={editing ? 'Edit Project' : 'New Project'}
           onClose={() => setShowModal(false)}
-          footer={
-            <div className="flex gap-3">
-              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">Cancel</Btn>
-              <Btn type="submit" form="project-form" loading={saving} className="flex-1">
-                {saving ? 'Saving…' : editing ? 'Update Project' : 'Create Project'}
-              </Btn>
-            </div>
-          }
         >
-          <form id="project-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {formError && (
               <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
             )}
@@ -190,7 +182,7 @@ const Projects = () => {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">Team Members</label>
-              <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100 max-h-48 overflow-y-auto">
+              <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-40 overflow-y-auto">
                 {members.length === 0 ? (
                   <p className="px-4 py-3 text-sm text-gray-400">No members available</p>
                 ) : members.map((m) => (
@@ -207,8 +199,15 @@ const Projects = () => {
                 ))}
               </div>
             </div>
+
+            <div className="flex gap-3 pt-2">
+              <Btn type="button" variant="secondary" onClick={() => setShowModal(false)} className="flex-1">Cancel</Btn>
+              <Btn type="submit" loading={saving} className="flex-1">
+                {saving ? 'Saving…' : editing ? 'Update Project' : 'Create Project'}
+              </Btn>
+            </div>
           </form>
-        </Modal>
+        </Popup>
       )}
     </Layout>
   );
