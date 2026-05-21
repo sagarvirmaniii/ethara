@@ -9,10 +9,26 @@ import api from '../api/axios';
 
 const DEFAULT = { title: '', description: '', assignedTo: '', project: '', status: 'Todo', priority: 'Medium', dueDate: '' };
 
+const ActionBtn = ({ onClick, disabled, color = 'indigo', children }) => {
+  const colors = {
+    indigo: 'text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100',
+    red:    'text-gray-500 hover:text-red-600 hover:bg-red-50 active:bg-red-100',
+  };
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`btn-press px-2.5 py-1 text-xs font-medium rounded-md disabled:opacity-40 disabled:cursor-not-allowed ${colors[color]}`}
+    >
+      {children}
+    </button>
+  );
+};
+
 const Tasks = () => {
   const { user } = useAuth();
-  const toast = useToast();
-  const isAdmin = user?.role === 'Admin';
+  const toast    = useToast();
+  const isAdmin  = user?.role === 'Admin';
 
   const [tasks, setTasks]                     = useState([]);
   const [projects, setProjects]               = useState([]);
@@ -93,8 +109,11 @@ const Tasks = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this task?')) return;
     setDeletingId(id);
-    try { await api.delete(`/tasks/${id}`); setTasks((p) => p.filter((t) => t._id !== id)); toast('Task deleted', 'success'); }
-    catch { toast('Failed to delete task', 'error'); }
+    try {
+      await api.delete(`/tasks/${id}`);
+      setTasks((p) => p.filter((t) => t._id !== id));
+      toast('Task deleted', 'success');
+    } catch { toast('Failed to delete task', 'error'); }
     finally { setDeletingId(null); }
   };
 
@@ -104,35 +123,45 @@ const Tasks = () => {
   if (showForm) {
     return (
       <Layout>
-        <div className="max-w-xl mx-auto">
-          {/* Back link */}
-          <button onClick={closeForm} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+        <div className="form-enter max-w-xl mx-auto">
+          <button
+            onClick={closeForm}
+            className="btn-press inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-indigo-600 mb-6"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Tasks
           </button>
 
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
             <div className="px-6 py-5 border-b border-gray-100">
               <h1 className="text-base font-semibold text-gray-900">
                 {editing ? 'Edit Task' : 'New Task'}
               </h1>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {editing ? 'Update task details below' : 'Fill in the details to create a new task'}
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-5">
               {formError && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
+                <div className="flex items-center gap-2.5 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {formError}
+                </div>
               )}
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700">Title <span className="text-red-500">*</span></label>
-                <input type="text" autoFocus value={form.title} onChange={set('title')} className={inputCls} placeholder="Task title" />
+                <input type="text" autoFocus value={form.title} onChange={set('title')} className={inputCls} placeholder="e.g. Design landing page" />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700">Description</label>
-                <textarea rows={3} value={form.description} onChange={set('description')} className={`${inputCls} resize-none`} placeholder="Optional description" />
+                <textarea rows={3} value={form.description} onChange={set('description')} className={`${inputCls} resize-none`} placeholder="Optional details about this task" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -156,13 +185,17 @@ const Tasks = () => {
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-medium text-gray-700">Status</label>
                   <select value={form.status} onChange={set('status')} className={inputCls}>
-                    <option>Todo</option><option>In Progress</option><option>Completed</option>
+                    <option>Todo</option>
+                    <option>In Progress</option>
+                    <option>Completed</option>
                   </select>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-medium text-gray-700">Priority</label>
                   <select value={form.priority} onChange={set('priority')} className={inputCls}>
-                    <option>Low</option><option>Medium</option><option>High</option>
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
                   </select>
                 </div>
               </div>
@@ -172,7 +205,7 @@ const Tasks = () => {
                 <input type="date" value={form.dueDate} onChange={set('dueDate')} className={inputCls} />
               </div>
 
-              <div className="flex gap-3 pt-1">
+              <div className="flex gap-3 pt-2 border-t border-gray-100">
                 <Btn type="button" variant="secondary" onClick={closeForm} className="flex-1">Cancel</Btn>
                 <Btn type="submit" loading={saving} className="flex-1">
                   {saving ? 'Saving…' : editing ? 'Update Task' : 'Create Task'}
@@ -188,10 +221,10 @@ const Tasks = () => {
   /* ── Tasks list ── */
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-gray-500 mt-1">
             {loading ? 'Loading…' : `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`}
           </p>
         </div>
@@ -206,14 +239,18 @@ const Tasks = () => {
       </div>
 
       {/* Project filter */}
-      <div className="mb-5">
+      <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Filter by Project</label>
         {projectsLoading ? (
           <div className="h-10 w-56 bg-gray-100 rounded-lg animate-pulse" />
         ) : projects.length === 0 ? (
           <p className="text-sm text-gray-400">No projects available</p>
         ) : (
-          <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className={`${inputCls} w-56`}>
+          <select
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className={`${inputCls} w-56`}
+          >
             {projects.map((p) => <option key={p._id} value={p._id}>{p.projectName}</option>)}
           </select>
         )}
@@ -224,29 +261,38 @@ const Tasks = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-slate-50 border-b border-gray-100">
                 {['Task', 'Assigned To', 'Status', 'Priority', 'Due Date', ...(isAdmin ? ['Actions'] : [])].map((h) => (
                   <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <TableSkeleton rows={4} cols={isAdmin ? 6 : 5} />
               ) : tasks.length === 0 ? (
                 <tr>
-                  <td colSpan={isAdmin ? 6 : 5} className="px-6 py-14 text-center">
+                  <td colSpan={isAdmin ? 6 : 5} className="px-6 py-16 text-center">
                     <p className="text-sm text-gray-400">No tasks found for this project</p>
-                    {isAdmin && <button onClick={openCreate} className="mt-2 text-sm text-indigo-600 hover:underline font-medium">Create the first task</button>}
+                    {isAdmin && (
+                      <button
+                        onClick={openCreate}
+                        className="btn-press mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+                      >
+                        Create the first task
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : tasks.map((task) => {
                 const canUpdateStatus = !isAdmin && task.assignedTo?._id === user._id;
                 return (
-                  <tr key={task._id} className="hover:bg-gray-50">
+                  <tr key={task._id} className="tr-hover">
                     <td className="px-6 py-3.5">
                       <p className="font-medium text-gray-900">{task.title}</p>
-                      {task.description && <p className="text-xs text-gray-400 mt-0.5 line-clamp-1 max-w-xs">{task.description}</p>}
+                      {task.description && (
+                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-1 max-w-xs">{task.description}</p>
+                      )}
                     </td>
                     <td className="px-6 py-3.5">
                       {task.assignedTo ? (
@@ -260,9 +306,15 @@ const Tasks = () => {
                     </td>
                     <td className="px-6 py-3.5">
                       {canUpdateStatus ? (
-                        <select value={task.status} onChange={(e) => handleStatusUpdate(task, e.target.value)} disabled={updatingId === task._id}
-                          className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:opacity-60 cursor-pointer">
-                          <option>Todo</option><option>In Progress</option><option>Completed</option>
+                        <select
+                          value={task.status}
+                          onChange={(e) => handleStatusUpdate(task, e.target.value)}
+                          disabled={updatingId === task._id}
+                          className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 cursor-pointer"
+                        >
+                          <option>Todo</option>
+                          <option>In Progress</option>
+                          <option>Completed</option>
                         </select>
                       ) : <StatusBadge status={task.status} />}
                     </td>
@@ -276,11 +328,11 @@ const Tasks = () => {
                     </td>
                     {isAdmin && (
                       <td className="px-6 py-3.5">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => openEdit(task)} className="px-2 py-1 text-xs font-medium text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">Edit</button>
-                          <button onClick={() => handleDelete(task._id)} disabled={deletingId === task._id} className="px-2 py-1 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md disabled:opacity-50">
+                        <div className="flex items-center gap-0.5">
+                          <ActionBtn onClick={() => openEdit(task)} color="indigo">Edit</ActionBtn>
+                          <ActionBtn onClick={() => handleDelete(task._id)} disabled={deletingId === task._id} color="red">
                             {deletingId === task._id ? '…' : 'Delete'}
-                          </button>
+                          </ActionBtn>
                         </div>
                       </td>
                     )}

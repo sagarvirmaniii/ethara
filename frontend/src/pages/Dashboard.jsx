@@ -9,9 +9,9 @@ import api from '../api/axios';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [data, setData] = useState(null);
+  const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError]     = useState('');
   const isAdmin = user?.role === 'Admin';
 
   useEffect(() => {
@@ -24,21 +24,26 @@ const Dashboard = () => {
   return (
     <Layout>
       {/* Page header */}
-      <div className="mb-7">
+      <div className="mb-8">
         <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          Welcome back, <span className="font-medium text-gray-700">{user?.name}</span>
+        <p className="text-sm text-gray-500 mt-1">
+          Welcome back, <span className="font-semibold text-indigo-600">{user?.name}</span>
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
+        <div className="mb-6 flex items-center gap-2.5 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          {error}
+        </div>
       )}
 
       {loading ? <PageLoader /> : (
         <>
-          {/* Stat cards */}
-          <div className={`grid gap-4 mb-7 ${isAdmin ? 'grid-cols-2 lg:grid-cols-5' : 'grid-cols-2 lg:grid-cols-4'}`}>
+          {/* Stat cards — stagger animation */}
+          <div className={`stagger grid gap-4 mb-8 ${isAdmin ? 'grid-cols-2 lg:grid-cols-5' : 'grid-cols-2 lg:grid-cols-4'}`}>
             {isAdmin ? (
               <>
                 <StatCard label="Projects"  value={data?.totalProjects}  color="blue"   />
@@ -57,38 +62,48 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Recent tasks */}
+          {/* Recent tasks table */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-semibold text-gray-900">Recent Tasks</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Last 5 tasks across all projects</p>
               </div>
-              <Link to="/tasks" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
-                View all →
+              <Link
+                to="/tasks"
+                className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+              >
+                View all
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
+                  <tr className="bg-slate-50 border-b border-gray-100">
                     {['Task', 'Project', 'Status', 'Priority'].map((h) => (
                       <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-100">
                   {!data?.recentTasks?.length ? (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-400">
                         No tasks yet.{' '}
-                        {isAdmin && <Link to="/tasks" className="text-indigo-600 hover:underline">Create your first task</Link>}
+                        {isAdmin && (
+                          <Link to="/tasks" className="text-indigo-600 hover:underline font-medium">
+                            Create your first task
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   ) : (
                     data.recentTasks.map((task) => (
-                      <tr key={task._id} className="hover:bg-gray-50">
+                      <tr key={task._id} className="tr-hover">
                         <td className="px-6 py-3.5 font-medium text-gray-900">{task.title}</td>
                         <td className="px-6 py-3.5 text-gray-500">{task.project?.projectName || '—'}</td>
                         <td className="px-6 py-3.5"><StatusBadge status={task.status} /></td>

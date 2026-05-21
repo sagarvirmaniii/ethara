@@ -1,8 +1,9 @@
+/* Shared input class — used everywhere inputs/selects/textareas appear */
 export const inputCls = [
   'w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5',
   'text-sm text-gray-900 placeholder-gray-400',
-  'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-  'disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed',
+  'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
+  'disabled:bg-slate-50 disabled:text-gray-400 disabled:cursor-not-allowed',
 ].join(' ');
 
 export const FormField = ({ label, required, error, hint, children }) => (
@@ -33,10 +34,10 @@ const SIZES = {
 };
 
 const VARIANTS = {
-  primary:   'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 active:bg-indigo-800',
-  secondary: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 focus:ring-gray-300',
-  danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-  ghost:     'text-gray-600 hover:bg-gray-100 focus:ring-gray-300',
+  primary:   'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 focus:ring-indigo-500 shadow-sm',
+  secondary: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 focus:ring-gray-300 shadow-sm',
+  danger:    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500 shadow-sm',
+  ghost:     'text-gray-600 hover:bg-gray-100 active:bg-gray-200 focus:ring-gray-300',
 };
 
 export const Btn = ({
@@ -53,7 +54,8 @@ export const Btn = ({
     className={[
       'inline-flex items-center justify-center font-medium rounded-lg',
       'focus:outline-none focus:ring-2 focus:ring-offset-1',
-      'disabled:opacity-60 disabled:cursor-not-allowed',
+      'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
+      'btn-press',
       SIZES[size],
       VARIANTS[variant],
       className,

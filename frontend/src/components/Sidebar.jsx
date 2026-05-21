@@ -4,7 +4,7 @@ import UserMenu from './UserMenu';
 
 const IC = {
   dashboard: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <svg className="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
       <rect x="14" y="3" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
@@ -12,12 +12,12 @@ const IC = {
     </svg>
   ),
   projects: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <svg className="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h3.586a1 1 0 01.707.293L10.414 6.5A1 1 0 0011.121 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
     </svg>
   ),
   tasks: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <svg className="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
     </svg>
   ),
@@ -47,7 +47,7 @@ const NavItems = ({ onClose }) => (
         to={to}
         onClick={onClose}
         className={({ isActive }) =>
-          `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+          `nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
             isActive
               ? 'bg-indigo-50 text-indigo-700'
               : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -81,11 +81,11 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* ── Mobile top bar ── */}
+      {/* Mobile top bar */}
       <div className="lg:hidden fixed inset-x-0 top-0 z-40 h-14 bg-white border-b border-gray-100 flex items-center justify-between px-4">
         <button
           onClick={() => setOpen(true)}
-          className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
+          className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 btn-press"
           aria-label="Open menu"
         >
           {IC.menu}
@@ -94,7 +94,7 @@ const Sidebar = () => {
         <UserMenu />
       </div>
 
-      {/* ── Mobile backdrop ── */}
+      {/* Mobile backdrop */}
       {open && (
         <div
           className="lg:hidden fixed inset-0 z-40 bg-black/30"
@@ -102,17 +102,17 @@ const Sidebar = () => {
         />
       )}
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       <aside
         className={`lg:hidden fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl flex flex-col transform transition-transform duration-200 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between px-5 h-14 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100 flex-shrink-0">
           <Brand />
           <button
             onClick={() => setOpen(false)}
-            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 btn-press"
           >
             {IC.x}
           </button>
@@ -120,7 +120,7 @@ const Sidebar = () => {
         <NavItems onClose={() => setOpen(false)} />
       </aside>
 
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 bg-white border-r border-gray-100 h-screen sticky top-0">
         <Brand />
         <NavItems />

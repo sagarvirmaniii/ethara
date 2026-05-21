@@ -2,61 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────
+   Design tokens (CSS custom properties)
+   Primary  : indigo-600  #4f46e5
+   Surface  : white
+   Background: slate-50   #f8fafc
+   Border   : gray-100    #f3f4f6
+   Text     : gray-900 / gray-500 / gray-400
+───────────────────────────────────────── */
+
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-slate-50 text-gray-900 antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  input, select, textarea, button, a {
+  /* Every interactive element gets a consistent base transition */
+  a, button, input, select, textarea {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
     transition-duration: 150ms;
-    transition-timing-function: ease;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
 @layer utilities {
-  /* ── Page transition ── */
+
+  /* ── Page fade-up ── */
   .page-enter {
-    animation: pageEnter 0.18s ease-out both;
+    animation: pageEnter 0.22s ease-out both;
   }
   @keyframes pageEnter {
-    from { opacity: 0; transform: translateY(4px); }
+    from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0);   }
   }
 
-  /* ── Modal ── */
-  .modal-overlay-enter {
-    animation: overlayIn 0.15s ease both;
-  }
-  @keyframes overlayIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  .modal-panel-enter {
-    animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes panelIn {
-    from { opacity: 0; transform: scale(0.96) translateY(6px); }
-    to   { opacity: 1; transform: scale(1)    translateY(0);   }
+  /* ── Staggered children (stat cards, project cards) ── */
+  .stagger > *:nth-child(1) { animation: fadeUp 0.2s 0.00s ease-out both; }
+  .stagger > *:nth-child(2) { animation: fadeUp 0.2s 0.05s ease-out both; }
+  .stagger > *:nth-child(3) { animation: fadeUp 0.2s 0.10s ease-out both; }
+  .stagger > *:nth-child(4) { animation: fadeUp 0.2s 0.15s ease-out both; }
+  .stagger > *:nth-child(5) { animation: fadeUp 0.2s 0.20s ease-out both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
   }
 
-  /* ── Toast ── */
+  /* ── Form page slide-in ── */
+  .form-enter {
+    animation: formEnter 0.2s ease-out both;
+  }
+  @keyframes formEnter {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  /* ── Toast slide-in ── */
   .toast-enter {
-    animation: toastIn 0.2s ease-out both;
+    animation: toastIn 0.22s ease-out both;
   }
   @keyframes toastIn {
-    from { opacity: 0; transform: translateX(12px); }
+    from { opacity: 0; transform: translateX(16px); }
     to   { opacity: 1; transform: translateX(0);    }
   }
 
-  /* ── Card hover ── */
+  /* ── Card hover lift ── */
   .card-hover {
-    transition: box-shadow 0.18s ease, transform 0.18s ease;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
   .card-hover:hover {
     @apply shadow-md;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+  }
+
+  /* ── Table row hover ── */
+  .tr-hover {
+    transition: background-color 0.12s ease;
+  }
+  .tr-hover:hover {
+    @apply bg-indigo-50/40;
+  }
+
+  /* ── Button press feedback ── */
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  /* ── Sidebar nav link ── */
+  .nav-link {
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+  .nav-link:active {
+    transform: scale(0.98);
   }
 }

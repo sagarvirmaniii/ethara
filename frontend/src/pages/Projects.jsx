@@ -9,10 +9,27 @@ import api from '../api/axios';
 
 const DEFAULT = { projectName: '', description: '', teamMembers: [] };
 
+/* Reusable inline action button */
+const ActionBtn = ({ onClick, disabled, color = 'indigo', children }) => {
+  const colors = {
+    indigo: 'text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100',
+    red:    'text-gray-500 hover:text-red-600 hover:bg-red-50 active:bg-red-100',
+  };
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`btn-press px-2.5 py-1 text-xs font-medium rounded-md disabled:opacity-40 disabled:cursor-not-allowed ${colors[color]}`}
+    >
+      {children}
+    </button>
+  );
+};
+
 const Projects = () => {
   const { user } = useAuth();
-  const toast = useToast();
-  const isAdmin = user?.role === 'Admin';
+  const toast    = useToast();
+  const isAdmin  = user?.role === 'Admin';
 
   const [projects, setProjects]     = useState([]);
   const [members, setMembers]       = useState([]);
@@ -60,48 +77,65 @@ const Projects = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this project? This cannot be undone.')) return;
     setDeletingId(id);
-    try { await api.delete(`/projects/${id}`); setProjects((p) => p.filter((x) => x._id !== id)); toast('Project deleted', 'success'); }
-    catch { toast('Failed to delete project', 'error'); }
+    try {
+      await api.delete(`/projects/${id}`);
+      setProjects((p) => p.filter((x) => x._id !== id));
+      toast('Project deleted', 'success');
+    } catch { toast('Failed to delete project', 'error'); }
     finally { setDeletingId(null); }
   };
 
   const toggleMember = (id) =>
     setForm((f) => ({
       ...f,
-      teamMembers: f.teamMembers.includes(id) ? f.teamMembers.filter((m) => m !== id) : [...f.teamMembers, id],
+      teamMembers: f.teamMembers.includes(id)
+        ? f.teamMembers.filter((m) => m !== id)
+        : [...f.teamMembers, id],
     }));
 
   /* ── Full-page form ── */
   if (showForm) {
     return (
       <Layout>
-        <div className="max-w-xl mx-auto">
-          {/* Back link */}
-          <button onClick={closeForm} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+        <div className="form-enter max-w-xl mx-auto">
+          <button
+            onClick={closeForm}
+            className="btn-press inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-indigo-600 mb-6"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Projects
           </button>
 
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
             <div className="px-6 py-5 border-b border-gray-100">
               <h1 className="text-base font-semibold text-gray-900">
                 {editing ? 'Edit Project' : 'New Project'}
               </h1>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {editing ? 'Update project details below' : 'Fill in the details to create a new project'}
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-5">
               {formError && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{formError}</div>
+                <div className="flex items-center gap-2.5 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {formError}
+                </div>
               )}
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Project Name <span className="text-red-500">*</span></label>
+                <label className="text-sm font-medium text-gray-700">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text" autoFocus value={form.projectName}
                   onChange={(e) => { setForm({ ...form, projectName: e.target.value }); setFormError(''); }}
-                  className={inputCls} placeholder="Enter project name"
+                  className={inputCls} placeholder="e.g. Website Redesign"
                 />
               </div>
 
@@ -110,18 +144,24 @@ const Projects = () => {
                 <textarea
                   rows={3} value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className={`${inputCls} resize-none`} placeholder="Optional description"
+                  className={`${inputCls} resize-none`}
+                  placeholder="What is this project about?"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700">Team Members</label>
-                <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+                <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 overflow-hidden">
                   {members.length === 0 ? (
                     <p className="px-4 py-3 text-sm text-gray-400">No members available</p>
                   ) : members.map((m) => (
-                    <label key={m._id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                      <input type="checkbox" checked={form.teamMembers.includes(m._id)} onChange={() => toggleMember(m._id)} className="w-4 h-4 accent-indigo-600 flex-shrink-0" />
+                    <label key={m._id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.teamMembers.includes(m._id)}
+                        onChange={() => toggleMember(m._id)}
+                        className="w-4 h-4 accent-indigo-600 flex-shrink-0"
+                      />
                       <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {m.name[0].toUpperCase()}
                       </div>
@@ -134,8 +174,10 @@ const Projects = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-1">
-                <Btn type="button" variant="secondary" onClick={closeForm} className="flex-1">Cancel</Btn>
+              <div className="flex gap-3 pt-2 border-t border-gray-100">
+                <Btn type="button" variant="secondary" onClick={closeForm} className="flex-1">
+                  Cancel
+                </Btn>
                 <Btn type="submit" loading={saving} className="flex-1">
                   {saving ? 'Saving…' : editing ? 'Update Project' : 'Create Project'}
                 </Btn>
@@ -150,10 +192,10 @@ const Projects = () => {
   /* ── Projects list ── */
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Projects</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-gray-500 mt-1">
             {loading ? 'Loading…' : `${projects.length} project${projects.length !== 1 ? 's' : ''}`}
           </p>
         </div>
@@ -169,41 +211,41 @@ const Projects = () => {
 
       {loading ? <CardSkeleton count={3} /> : projects.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-            <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4">
+            <svg className="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path d="M3 7a2 2 0 012-2h3.586a1 1 0 01.707.293L10.414 6.5A1 1 0 0011.121 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
             </svg>
           </div>
-          <p className="text-sm font-medium text-gray-600">No projects yet</p>
-          {isAdmin && (
-            <button onClick={openCreate} className="mt-2 text-sm text-indigo-600 hover:underline">
-              Create your first project
-            </button>
-          )}
+          <p className="text-sm font-semibold text-gray-700">No projects yet</p>
+          <p className="text-xs text-gray-400 mt-1 mb-4">Create your first project to get started</p>
+          {isAdmin && <Btn onClick={openCreate} size="sm">Create Project</Btn>}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="stagger grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {projects.map((p) => (
             <div key={p._id} className="card-hover bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col">
-              <div className="flex items-start justify-between mb-2.5">
-                <Link to={`/projects/${p._id}`} className="text-sm font-semibold text-gray-900 hover:text-indigo-600 leading-snug">
+              <div className="flex items-start justify-between mb-3">
+                <Link
+                  to={`/projects/${p._id}`}
+                  className="text-sm font-semibold text-gray-900 hover:text-indigo-600 leading-snug"
+                >
                   {p.projectName}
                 </Link>
                 {isAdmin && (
-                  <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-                    <button onClick={() => openEdit(p)} className="px-2 py-1 text-xs font-medium text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">Edit</button>
-                    <button onClick={() => handleDelete(p._id)} disabled={deletingId === p._id} className="px-2 py-1 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md disabled:opacity-50">
+                  <div className="flex items-center gap-0.5 ml-2 flex-shrink-0">
+                    <ActionBtn onClick={() => openEdit(p)} color="indigo">Edit</ActionBtn>
+                    <ActionBtn onClick={() => handleDelete(p._id)} disabled={deletingId === p._id} color="red">
                       {deletingId === p._id ? '…' : 'Delete'}
-                    </button>
+                    </ActionBtn>
                   </div>
                 )}
               </div>
 
-              <p className="text-xs text-gray-500 line-clamp-2 flex-1 mb-4">
+              <p className="text-xs text-gray-500 line-clamp-2 flex-1 mb-4 leading-relaxed">
                 {p.description || 'No description provided'}
               </p>
 
-              <div className="flex items-center justify-between pt-3.5 border-t border-gray-50">
+              <div className="flex items-center justify-between pt-3.5 border-t border-gray-100">
                 <div className="flex items-center gap-1.5">
                   <div className="flex -space-x-1.5">
                     {p.teamMembers.slice(0, 3).map((m) => (
@@ -217,7 +259,9 @@ const Projects = () => {
                       </div>
                     )}
                   </div>
-                  <span className="text-xs text-gray-400">{p.teamMembers.length} member{p.teamMembers.length !== 1 ? 's' : ''}</span>
+                  <span className="text-xs text-gray-400">
+                    {p.teamMembers.length} member{p.teamMembers.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
                 <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
               </div>
